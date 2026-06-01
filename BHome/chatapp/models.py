@@ -17,4 +17,16 @@ class Conversation(models.Model):
     objects = ConversationManager()
 
     def __str__(self):
-        return f"Conversation {self.id} with participants: {[user.username for user in self.participants.all()]}"
+        participant_names = " ,".join([user.username for user in self.participants.all()])
+        return f"Conversation between {participant_names}"
+    
+class Message(models.Model):
+    conversation = models.ForeignKey(Conversation, related_name='messages', on_delete=models.CASCADE)
+    sender = models.ForeignKey(User, related_name='sent_messages', on_delete=models.CASCADE)
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Message from {self.sender.username} in {self.content[:20]} at {self.timestamp}"
+
+    
