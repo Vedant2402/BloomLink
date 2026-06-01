@@ -49,6 +49,20 @@ class ConversationListCrateView(generics.ListCreateAPIView):
             
         existing_conversation = Conversation.objects.filter(
             participants__id=participants_data[0]
-            ).filter(
-                participants__id=participants_data[1]
-            ).distinct()
+        ).filter(
+            participants__id=participants_data[1]
+        ).distinct()
+            
+        if existing_conversation.exists():
+            return Response(
+                {'error': 'A conversation between these participants already exists.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            conversation = Conversation.objects.create()
+            conversation.participants.set(users)
+            
+            #serialize the conversation
+            serialzer = self.get_serializer(conversation)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+class Message
