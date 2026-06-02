@@ -71,3 +71,72 @@ class ChatConsumer(WebsocketConsumer):
             )
             
             
+    # help aceept and recive messages from the WebSocket        
+    async def receive(self, text_data):
+        text_data_json = json.loads(text_data)
+        event_type = text_data_json.get('type')
+        
+        if event_type == 'chat_message':
+            message_content = text_data_json.get('message')
+            user_id = text_data_json.get('user')
+            
+            try:
+                user = await self.get_user(user_id)
+                conversation = await self.get_conversation(
+                    self.get_conversation_id)
+                from .serializers import UserListSerializer
+                user_date = UserListSerializer(user).data
+                
+                message = await self.save_message(conversation, user, message_content)
+                
+                await sef.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        'type': 'chat_message',
+                        'message': message.content,
+                        'user': user_data,
+                        'timestamp': message.timestamp.isoformat(),
+                    }
+                )
+            except Exception as e:
+                print(f"Error saving message: {e}")
+                
+        elif event_type == 'typing':
+            try:
+                user_data = await self.get_user_data(self.scope['user'])
+                recver_id = text_data_json.get('receiver_id')
+                
+                if receiver_id is not None:
+                    if isinstance(receiver_id, (str, int, float)):
+                        receiver_id = (receiver_id)
+                        
+                        if receiver_id != self.scope['user'].id:
+                            print(f"User {
+                                user_data['username']} is typing to user with id {receiver_id}"
+                            )
+                            await self.channel_layer.group_send(
+                                self.room_group_name,
+                                {
+                                    'type': 'typing',
+                                    'user': user_data,
+                                    'receiver_id': receiver_id
+                                }
+                            )
+                        else:
+                            print(f"{user_id['username']} is typing to themselves")
+                    else:
+                        print(f"Invalid receiver ID: {type(receiver_id)}")
+                        
+                else:
+                    print("No receiver ID provided for typing event")
+            
+            except Exception as e:
+                print(f"Error parsing receiver ID: {e}")
+            except Exception as e:
+                print(f"Error getting user data: {e}")
+                
+
+    #chat messages helper function
+    async def cha
+
+                        
