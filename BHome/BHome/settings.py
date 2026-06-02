@@ -80,7 +80,7 @@ ASGI_APPLICATION = 'BHome.asgi.application'
 
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
             'host': [('127.0.01', 6379)],
         },
@@ -101,6 +101,7 @@ SIMPLE_JWT = {
 #cors headers settings
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "http://localhost:5173",
 ]
 
 
